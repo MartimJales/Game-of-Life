@@ -1,13 +1,7 @@
-from random import random, seed
+from random import random
 import numpy as np
-
-from os import system, name
-  
-# import sleep to show output for some time period
 from time import sleep
-
-seed(1)
-
+from os import system, name
 
 print('Insert the width and length!')
 col = int(input('Colunas: '))
@@ -56,8 +50,9 @@ def changeState(matrix, columns, lines):
 #print(newmatrix)
 
 
-#while(1):
-#    newmatrix = changeState(matrix, col, lin)
-#    print(newmatrix)
-#    matrix = newmatrix
-#    system('clear')
+while(1):
+    newmatrix = changeState(matrix, col, lin)
+    print(newmatrix)
+    sleep(0.5)
+    matrix = newmatrix
+    system('clear')
