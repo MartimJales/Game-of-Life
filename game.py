@@ -9,10 +9,12 @@ class Game():
         self.playing = False
         self.UP_KEY = False
         self.DOWN_KEY = False 
+        self.LEFT_KEY = False
+        self.RIGHT_KEY = False
         self.START_KEY = False 
         self.BACK_KEY = False 
-        self.DISPLAY_W = 480
-        self.DISPLAY_H = 270
+        self.DISPLAY_W = 1340
+        self.DISPLAY_H = 690
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
         self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
         self.font_name = pygame.font.get_default_font()
@@ -21,6 +23,8 @@ class Game():
         self.mainmenu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.credits = CreditMenu(self)
+        self.start = StartMenu(self)
+        self.grid = GridMenu(self)
         self.curr_menu = self.mainmenu
 
     def game_loop(self):
@@ -43,21 +47,29 @@ class Game():
                 print(self.curr_menu.display_menu)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    print("enter")
                     self.START_KEY = True
                 if event.key == pygame.K_BACKSPACE:
-                    print("BACKSPACE")
                     self.BACK_KEY = True
                 if event.key == pygame.K_DOWN:
                     self.DOWN_KEY = True
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
+                if event.key == pygame.K_ESCAPE:
+                    self.running = False
+                    self.playing = False
+                    self.curr_menu.run_display = False
+                if event.key == pygame.K_RIGHT:
+                    self.RIGHT_KEY = True
+                if event.key == pygame.K_LEFT:
+                    self.LEFT_KEY = True
 
     def reset_keys(self):
         self.UP_KEY = False
         self.DOWN_KEY = False 
         self.START_KEY = False 
         self.BACK_KEY = False 
+        self.RIGHT_KEY = False
+        self.LEFT_KEY = False
 
     def draw_text(self, text, size, x,y):
         font = pygame.font.Font(self.font_name, size)
