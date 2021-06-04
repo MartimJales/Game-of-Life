@@ -2,8 +2,6 @@ import pygame
 from time import sleep
 from menu import *
 
-# Tenho que colocar comentáriosnesta desgraça antes de dormir
-
 
 class Game():
     def __init__(self):
@@ -31,9 +29,10 @@ class Game():
         self.blockx, self.blocky = 0, 0  # Coordendas do bloco onde o user está
         # Coordenadas da matriz (Canto sup esquerdo)
         self.gridx, self.gridy = (self.DISPLAY_W - self.k) // 2, 100
-        self.matrix = np.random.randint(
-            1, size=(self.matrixH, self.matrixW))  # Gerar matriz (Parent)
-        self.newmatrix = self.matrix  # Gerar matriz (Child)
+        # Gerar matriz (Parent)
+        self.matrix = np.zeros((3, 3))
+        # Gerar matriz (Child)
+        self.newmatrix = self.matrix.copy()
         self.display = pygame.Surface(
             (self.DISPLAY_W, self.DISPLAY_H))      # Superficie do jogo
         self.window = pygame.display.set_mode(
@@ -54,6 +53,10 @@ class Game():
         self.curr_menu = self.mainmenu
 
     def game_loop(self):
+        matriz = self.matrix.copy()
+        newmatrix = self.matrix.copy()
+        print('Before the loop:')
+        print(matriz)
         if self.gen == 0:
             __flag__ = -1
         else:
@@ -70,7 +73,10 @@ class Game():
                            20, self.DISPLAY_W/2, 20)
             self.window.blit(self.display, (0, 0))
             pygame.display.update()
-            self.changeState()
+            self.changeState(matriz, newmatrix)
+            print('New Matrix:')
+            print(matriz)
+            matriz = newmatrix.copy()
             self.gen += 1
             if (self.gen == __flag__ + 1):
                 self.playing = False
@@ -119,38 +125,29 @@ class Game():
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
 
-    def neighbours(self, coordi, coordj):
+    def neighbours(self, ci, cj, matriz):
         alive = 0
         for i in range(3):
             for j in range(3):
                 if not(i == 1 and j == 1):
-                    x = j - 1 + coordj
-                    y = i - 1 + coordi
-                    if (x >= 0 and x < self.matrixW and y >= 0 and y < self.matrixH):
-                        if self.matrix[y][x] == 1:
+                    x = i - 1 + ci
+                    y = j - 1 + cj
+                    if (x >= 0 and x < self.matrixH and y >= 0 and y < self.matrixW):
+                        if (matriz[x][y] == 1):
                             alive += 1
-                            # if (coordi == 1 and coordj == 1):
-                            #print('Vizinho de (1, 1): ')
-                            #print('(' + str(x) + ', ' + str(y) + ')')
         return alive
 
-    def changeState(self):
-        print(self.matrix)
+    def changeState(self, matriz, newmatrix):
         for i in range(self.matrixH):
             for j in range(self.matrixW):
-                neighborhood = self.neighbours(i, j)
-                # print('('+str(j) + ', '+str(i) + ') tem ' +
-                #     str(neighborhood) + ' vizinhos!')
+                neighborhood = self.neighbours(i, j, matriz)
                 if (neighborhood == 3):
-                    self.newmatrix[i][j] = 1
+                    newmatrix[i][j] = 1
                 elif (neighborhood == 2):
-                    if self.matrix[i][j] == 1:
-                        self.newmatrix[i][j] = 1
+                    if matriz[i][j] == 1:
+                        newmatrix[i][j] = 1
                 else:
-                    self.newmatrix[i][j] = 0
-        print('Matrix after changeState:')
-        print(self.newmatrix)
-        self.matrix = self.newmatrix
+                    newmatrix[i][j] = 0
 
     def drawGrid(self):
         for i in range(self.matrixH):
