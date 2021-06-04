@@ -40,7 +40,7 @@ class MainMenu(Menu):
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text('Main Menu', 20, self.game.DISPLAY_W/2, 20)
             self.game.draw_text('Start', 20, self.startx, self.starty)
-            self.game.draw_text('Options', 20, self.optionsx, self.optionsy)
+            self.game.draw_text('Colors', 20, self.optionsx, self.optionsy)
             self.game.draw_text('Credits', 20, self.creditsx, self.creditsy)
             self.draw_cursor()
             self.blit_screen()
@@ -100,13 +100,12 @@ class OptionsMenu(Menu):
             self.game.check_events()
             self.check_input()
             self.game.display.fill(self.game.BLACK)
-            self.game.draw_text('Options', 20, self.game.DISPLAY_W/2, 20)
-            self.game.draw_text('Volume (Upcoming)', 20, self.volx, self.voly)
+            self.game.draw_text('Colors', 20, self.game.DISPLAY_W/2, 20)
             self.game.draw_text('Colors (Upcoming)', 20,
                                 self.colorx, self.colory)
-            self.game.draw_text('Language (Upcoming)', 20,
-                                self.languagex, self.languagey)
-            self.draw_cursor()
+            self.cursor_rect.midtop = (
+                self.colorx + self.offset, self.colory)
+            # self.draw_cursor()
             self.blit_screen()
 
     def check_input(self):
@@ -198,50 +197,6 @@ class CreditMenu(Menu):
 class StartMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
-        self.state = 'Grid'
-        self.gridx, self.gridy = self.mid_w, self.mid_h - 20
-        self.genx, self.geny = self.mid_w, self.mid_h
-        self.cursor_rect.midtop = (self.gridx + self.offset, self.gridy)
-
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            self.check_input()
-            self.game.display.fill(self.game.BLACK)
-            self.game.draw_text('Start Menu', 20, self.game.DISPLAY_W/2, 20)
-            self.game.draw_text('Grid (Upcoming)', 20, self.gridx, self.gridy)
-            self.game.draw_text('Generations (Upcoming)',
-                                20, self.genx, self.geny)
-            self.draw_cursor()
-            self.blit_screen()
-
-    def check_input(self):
-        self.move_cursor()
-        if self.game.BACK_KEY:
-            self.game.curr_menu = self.game.mainmenu
-            self.run_display = False
-        elif self.game.START_KEY:
-            if self.state == 'Grid':
-                self.game.curr_menu = self.game.grid
-            elif self.state == 'Gen':
-                pass  # Generation number menu
-            self.run_display = False
-
-    def move_cursor(self):
-        if self.game.DOWN_KEY or self.game.UP_KEY:
-            if self.state == 'Grid':
-                self.cursor_rect.midtop = (self.genx + self.offset, self.geny)
-                self.state = 'Gen'
-            elif self.state == 'Gen':
-                self.cursor_rect.midtop = (
-                    self.gridx + self.offset, self.gridy)
-                self.state = 'Grid'
-
-
-class GridMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
         self.state = 'Height'
         self.hx, self.hy = 120, self.mid_h - 60
         self.wx, self.wy = 120, self.mid_h
@@ -261,7 +216,7 @@ class GridMenu(Menu):
                     1, size=(self.game.matrixH, self.game.matrixW))
             self.game.newmatrix = self.game.matrix
             self.game.display.fill(self.game.BLACK)
-            self.game.draw_text('Grid Menu', 20, self.game.DISPLAY_W/2, 20)
+            self.game.draw_text('Start Menu', 20, self.game.DISPLAY_W/2, 20)
             self.game.draw_text('Height', 20, self.hx, self.hy)
             self.game.draw_text(str(self.game.matrixH),
                                 20, self.hx + 50, self.hy)
@@ -283,21 +238,21 @@ class GridMenu(Menu):
             self.blit_screen()
 
     def drawGrid(self):
-        for i in range(self.game.matrixW):
-            for j in range(self.game.matrixH):
+        for i in range(self.game.matrixH):
+            for j in range(self.game.matrixW):
                 rect = pygame.Rect(
-                    self.gridx + i*self.game.blockW, self.gridy + j*self.game.blockH, self.game.blockW, self.game.blockH)
-                if (self.game.matrix[j][i] == 0):
+                    self.gridx + j*self.game.blockW, self.gridy + i*self.game.blockH, self.game.blockW, self.game.blockH)
+                if (self.game.matrix[i][j] == 0):
                     pygame.draw.rect(self.game.display,
-                                     (255, 255, 255), rect, 1)
+                                     self.game.WHITE, rect, 1)
                 else:
                     pygame.Surface.fill(self.game.display,
-                                        (255, 0, 0), rect, 1)
+                                        self.game.WHITE, rect, 1)
 
     def draw_block(self):
         rect = pygame.Rect(self.gridx + self.game.blockx*self.game.blockW,
                            self.gridy + self.game.blocky*self.game.blockH, self.game.blockW, self.game.blockH)
-        pygame.Surface.fill(self.game.display, (255, 255, 255), rect, 1)
+        pygame.Surface.fill(self.game.display, self.game.RED, rect, 1)
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
@@ -330,8 +285,13 @@ class GridMenu(Menu):
     def check_input(self):
         self.move_cursor()
         if self.game.BACK_KEY:
-            self.game.curr_menu = self.game.mainmenu
-            self.run_display = False
+            if self.state != 'Grid':
+                self.game.curr_menu = self.game.mainmenu
+                self.run_display = False
+            else:
+                self.state = 'Height'
+                self.cursor_rect.midtop = (
+                    self.hx - 50, self.hy)
         elif self.game.START_KEY:
             if not(self.state == 'Grid'):
                 self.game.blockx, self.game.blocky = 0, 0
