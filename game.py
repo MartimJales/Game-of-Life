@@ -32,7 +32,7 @@ class Game():
         # Gerar matriz (Parent)
         self.matrix = np.zeros((3, 3))
         # Gerar matriz (Child)
-        self.newmatrix = self.matrix.copy()
+        self.newmatriz = self.matrix.copy()
         self.display = pygame.Surface(
             (self.DISPLAY_W, self.DISPLAY_H))      # Superficie do jogo
         self.window = pygame.display.set_mode(
@@ -53,10 +53,8 @@ class Game():
         self.curr_menu = self.mainmenu
 
     def game_loop(self):
-        matriz = self.matrix.copy()
-        newmatrix = self.matrix.copy()
-        print('Before the loop:')
-        print(matriz)
+        self.newmatriz = self.matrix.copy()
+        print(self.newmatriz)
         if self.gen == 0:
             __flag__ = -1
         else:
@@ -73,15 +71,45 @@ class Game():
                            20, self.DISPLAY_W/2, 20)
             self.window.blit(self.display, (0, 0))
             pygame.display.update()
-            self.changeState(matriz, newmatrix)
-            print('New Matrix:')
-            print(matriz)
-            matriz = newmatrix.copy()
-            self.gen += 1
-            if (self.gen == __flag__ + 1):
+            self.changeState(self.matrix, self.newmatriz)
+            self.matrix = self.newmatriz.copy()
+            if (self.gen == __flag__):
                 self.playing = False
+                self.gen -= 1
+            self.gen += 1
             sleep(1)
             self.reset_keys()
+
+    def neighbours(self, ci, cj, matriz):
+        alive = 0
+        for i in range(3):
+            for j in range(3):
+                if not(i == 1 and j == 1):
+                    x = i - 1 + ci
+                    y = j - 1 + cj
+                    if (x >= 0 and x < self.matrixH and y >= 0 and y < self.matrixW):
+                        if (matriz[x][y] == 1):
+                            alive += 1
+        return alive
+
+    def changeState(self, matriz, newmatrix):
+        nolimit = np.zeros((self.matrixH + 2, self.matrixW + 2), dtype=int)
+        # Com este ciclo já tenho a matriz inicial dentro de outra e rodeada por zeros
+        for j in range(self.matrixH):
+            for i in range(self.matrixW):
+                nolimit[j+1][i+1] = self.matrix[j][i]
+        print(nolimit)
+        # Aqui falta adicionar agora a passsagem das linhas e das colunas para a vizinhança!
+        for i in range(self.matrixH):
+            for j in range(self.matrixW):
+                neighborhood = self.neighbours(i, j, matriz)
+                if (neighborhood == 3):
+                    newmatrix[i][j] = 1
+                elif (neighborhood == 2):
+                    if matriz[i][j] == 1:
+                        newmatrix[i][j] = 1
+                else:
+                    newmatrix[i][j] = 0
 
     def check_events(self):
         for event in pygame.event.get():
@@ -124,30 +152,6 @@ class Game():
         text_rect = text_surface.get_rect()
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
-
-    def neighbours(self, ci, cj, matriz):
-        alive = 0
-        for i in range(3):
-            for j in range(3):
-                if not(i == 1 and j == 1):
-                    x = i - 1 + ci
-                    y = j - 1 + cj
-                    if (x >= 0 and x < self.matrixH and y >= 0 and y < self.matrixW):
-                        if (matriz[x][y] == 1):
-                            alive += 1
-        return alive
-
-    def changeState(self, matriz, newmatrix):
-        for i in range(self.matrixH):
-            for j in range(self.matrixW):
-                neighborhood = self.neighbours(i, j, matriz)
-                if (neighborhood == 3):
-                    newmatrix[i][j] = 1
-                elif (neighborhood == 2):
-                    if matriz[i][j] == 1:
-                        newmatrix[i][j] = 1
-                else:
-                    newmatrix[i][j] = 0
 
     def drawGrid(self):
         for i in range(self.matrixH):
