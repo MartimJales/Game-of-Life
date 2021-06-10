@@ -15,12 +15,13 @@ class Game():
         self.RIGHT_KEY = False
         self.START_KEY = False
         self.BACK_KEY = False
+        self.SPACE_KEY = False
         # Dimensões da janela
-        self.DISPLAY_W = 600
-        self.DISPLAY_H = 400
+        self.DISPLAY_W = 1200
+        self.DISPLAY_H = 690
         # Dimensões da matriz principal
-        self.matrixH = 3
-        self.matrixW = 3
+        self.matrixH = 5
+        self.matrixW = 5
         self.gen = 0  # Numero de gerações
         self.k = self.DISPLAY_H - 120  # Tamanho do lado da matriz
         # Dimensões de cada bloco da matriz
@@ -44,9 +45,15 @@ class Game():
         self.RED = (255, 0, 0)
         self.GREEN = (0, 255, 0)
         self.BLUE = (0, 0, 255)
+        # Variáveis para aplicar as cores:
+        self.col_grid = self.WHITE
+        self.col_block = self.BLUE
+        self.col_cursor = self.GREEN
+        self.col_text = self.WHITE
+        self.col_background = self.BLACK
         # Menus que o jogo contém
         self.mainmenu = MainMenu(self)
-        self.options = OptionsMenu(self)
+        self.colors = ColorsMenu(self)
         self.credits = CreditMenu(self)
         self.start = StartMenu(self)
         # Menu atual
@@ -60,14 +67,13 @@ class Game():
             __flag__ = self.gen
             self.gen = 0
         while self.playing:
-            print('Geração: '+str(self.gen))
             self.check_events()
             if self.START_KEY:
                 self.playing = False
-            self.display.fill(self.BLACK)
+            self.display.fill(self.col_background)
             self.drawGrid()
             self.draw_text('Generations: ' + str(self.gen),
-                           20, self.DISPLAY_W/2, 20)
+                           20, self.DISPLAY_W/2, 20, self.col_text)
             self.window.blit(self.display, (0, 0))
             pygame.display.update()
             self.changeState(self.matrix, self.newmatriz)
@@ -105,7 +111,6 @@ class Game():
         for j in range(self.matrixH + 2):
             nolimit[j][0] = nolimit[j][self.matrixW]
             nolimit[j][self.matrixW + 1] = nolimit[j][1]
-        print(nolimit)
         for i in range(self.matrixH):
             for j in range(self.matrixW):
                 neighborhood = self.neighbours(i, j, matriz, nolimit)
@@ -133,8 +138,12 @@ class Game():
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
                 if event.key == pygame.K_ESCAPE:
-                    self.running = False
-                    self.playing = False
+                    if self.playing == True:
+                        self.playing = False
+                        self.gen = 0
+                    else:
+                        self.running = False
+                        self.playing = False
                     self.curr_menu.run_display = False
                 if event.key == pygame.K_RIGHT:
                     self.RIGHT_KEY = True
@@ -152,9 +161,9 @@ class Game():
         self.LEFT_KEY = False
         self.SPACE_KEY = False
 
-    def draw_text(self, text, size, x, y):
+    def draw_text(self, text, size, x, y, color):
         font = pygame.font.Font(self.font_name, size)
-        text_surface = font.render(text, True, self.WHITE)
+        text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
@@ -166,7 +175,7 @@ class Game():
                     self.gridx + j*self.blockW, self.gridy + i*self.blockH, self.blockW, self.blockH)
                 if (self.matrix[i][j] == 0):
                     pygame.draw.rect(self.display,
-                                     self.WHITE, rect, 1)
+                                     self.col_grid, rect, 1)
                 else:
                     pygame.Surface.fill(self.display,
-                                        self.WHITE, rect, 1)
+                                        self.col_block, rect, 1)
