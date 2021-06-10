@@ -31,8 +31,7 @@ class MainMenu(Menu):
         Menu.__init__(self, game)
         self.state = 'Start'
         self.startx, self.starty = self.mid_w, self.mid_h - 20
-        self.optionsx, self.optionsy = self.mid_w, self.mid_h
-        self.creditsx, self.creditsy = self.mid_w, self.mid_h + 20
+        self.optionsx, self.optionsy = self.mid_w, self.mid_h + 20
         self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
 
     def display_menu(self):
@@ -47,38 +46,19 @@ class MainMenu(Menu):
                                 self.starty, self.game.col_text)
             self.game.draw_text('Colors', 20, self.optionsx,
                                 self.optionsy, self.game.col_text)
-            self.game.draw_text('Credits', 20, self.creditsx,
-                                self.creditsy, self.game.col_text)
             self.draw_cursor()
             self.blit_screen()
 
     def move_cursor(self):
-        if self.game.DOWN_KEY:
+        if self.game.DOWN_KEY or self.game.UP_KEY:
             if self.state == 'Start':
                 self.cursor_rect.midtop = (
                     self.optionsx + self.offset, self.optionsy)
                 self.state = 'Options'
             elif self.state == 'Options':
                 self.cursor_rect.midtop = (
-                    self.creditsx + self.offset, self.creditsy)
-                self.state = 'Credits'
-            elif self.state == 'Credits':
-                self.cursor_rect.midtop = (
                     self.startx + self.offset, self.starty)
                 self.state = 'Start'
-        if self.game.UP_KEY:
-            if self.state == 'Start':
-                self.cursor_rect.midtop = (
-                    self.creditsx + self.offset, self.creditsy)
-                self.state = 'Credits'
-            elif self.state == 'Options':
-                self.cursor_rect.midtop = (
-                    self.startx + self.offset, self.starty)
-                self.state = 'Start'
-            elif self.state == 'Credits':
-                self.cursor_rect.midtop = (
-                    self.optionsx + self.offset, self.optionsy)
-                self.state = 'Options'
 
     def check_input(self):
         self.move_cursor()
@@ -87,9 +67,7 @@ class MainMenu(Menu):
                 self.game.curr_menu = self.game.start
             elif self.state == 'Options':
                 self.game.curr_menu = self.game.colors
-            elif self.state == 'Credits':
-                self.game.curr_menu = self.game.credits
-            self.run_display = False
+        self.run_display = False
 
 
 class ColorsMenu(Menu):
@@ -295,53 +273,6 @@ class ColorsMenu(Menu):
                 self.cursor_rect.midtop = (
                     self.backx + self.offset, self.backy)
                 self.state = 'Back'
-
-
-class CreditMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-        self.state = 'History'
-        self.histx, self.histy = self.mid_w, self.mid_h - 20
-        self.progx, self.progy = self.mid_w, self.mid_h
-        self.cursor_rect.midtop = (self.histx + self.offset, self.histy)
-
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            self.check_input()
-            self.game.display.fill(self.game.col_background)
-            self.game.draw_text(
-                'Credits', 20, self.game.DISPLAY_W/2, 20, self.game.col_text)
-            self.game.draw_text('History (Upcoming)', 20,
-                                self.histx, self.histy, self.game.col_text)
-            self.game.draw_text('Programmer (Upcoming)',
-                                20, self.progx, self.progy, self.game.col_text)
-            self.draw_cursor()
-            self.blit_screen()
-
-    def check_input(self):
-        self.move_cursor()
-        if self.game.BACK_KEY:
-            self.game.curr_menu = self.game.mainmenu
-            self.run_display = False
-        elif self.game.START_KEY:
-            if self.state == 'History':
-                pass  # History of Game of Life
-            elif self.state == 'Programmer':
-                pass  # Programmer name
-            self.run_display = False
-
-    def move_cursor(self):
-        if self.game.DOWN_KEY or self.game.UP_KEY:
-            if self.state == 'History':
-                self.cursor_rect.midtop = (
-                    self.progx + self.offset, self.progy)
-                self.state = 'Programmer'
-            elif self.state == 'Programmer':
-                self.cursor_rect.midtop = (
-                    self.histx + self.offset, self.histy)
-                self.state = 'History'
 
 
 class StartMenu(Menu):

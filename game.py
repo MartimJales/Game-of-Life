@@ -54,7 +54,6 @@ class Game():
         # Menus que o jogo contém
         self.mainmenu = MainMenu(self)
         self.colors = ColorsMenu(self)
-        self.credits = CreditMenu(self)
         self.start = StartMenu(self)
         # Menu atual
         self.curr_menu = self.mainmenu
